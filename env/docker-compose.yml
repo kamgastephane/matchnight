@@ -1,0 +1,22 @@
+version: '3'
+networks:
+  match-night-network:
+
+services:
+  match-night-mongo:
+    image: mongo
+    container_name: match-night-mongo
+    ports:
+      - 27017:27017
+    networks:
+      - match-night-network
+
+  redis:
+    container_name: redis
+    image: redis:5.0-alpine
+    ports:
+      - 6379:6379
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - match-night-network
+
