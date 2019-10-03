@@ -39,7 +39,6 @@ public abstract class Event {
 
     abstract Event withVersion(Long version);
 
-
     protected Event(String externalId, Instant date, Type type, String id, Long version) {
         this.externalId = externalId;
         this.date = date;
@@ -71,5 +70,25 @@ public abstract class Event {
     @Override
     public int hashCode() {
         return Objects.hash(id, externalId, date, type, version);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public Instant getDate() {
+        return date;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 }

@@ -13,22 +13,23 @@ import java.time.Instant;
 @TypeAlias("matchevents")
 public class MatchEvent  extends Event {
 
-    private MatchEvent(String matchId, Instant date, String id, Long version) {
-        super(matchId, date, Type.FOOTBALL, id, version);
+
+    private MatchEvent(String externalId, Instant date, Type type, String id, Long version) {
+        super(externalId, date, type, id, version);
     }
 
-    public MatchEvent of(String matchId, Instant date) {
-        return new MatchEvent(matchId, date, null, null);
+    public static MatchEvent of(String matchId, Instant date) {
+        return new MatchEvent(matchId, date, Type.FOOTBALL, null, null);
     }
 
     @Override
     MatchEvent withId(String id) {
-        return new MatchEvent(this.externalId, this.date, id, this.version);
+        return new MatchEvent(this.externalId, this.date, this.type, id, this.version);
     }
 
     @Override
     MatchEvent withVersion(Long version) {
-        return new MatchEvent(this.externalId, this.date, this.id, version);
+        return new MatchEvent(this.externalId, this.date, this.type, this.id, version);
     }
 
     @Override
@@ -41,6 +42,8 @@ public class MatchEvent  extends Event {
                 ", version=" + version +
                 '}';
     }
+
+
 
 
 
