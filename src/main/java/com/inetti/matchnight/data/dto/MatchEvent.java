@@ -1,6 +1,8 @@
 package com.inetti.matchnight.data.dto;
 
 import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -11,6 +13,7 @@ import java.time.Instant;
 
 @Document(collection = "matchevents")
 @TypeAlias("matchevents")
+@CompoundIndexes(@CompoundIndex(unique = true, name = "", def = "{'externalId':1, 'type':1}"))
 public class MatchEvent  extends Event {
 
 
@@ -23,12 +26,12 @@ public class MatchEvent  extends Event {
     }
 
     @Override
-    MatchEvent withId(String id) {
+    public MatchEvent withId(String id) {
         return new MatchEvent(this.externalId, this.date, this.type, id, this.version);
     }
 
     @Override
-    MatchEvent withVersion(Long version) {
+    public MatchEvent withVersion(Long version) {
         return new MatchEvent(this.externalId, this.date, this.type, this.id, version);
     }
 

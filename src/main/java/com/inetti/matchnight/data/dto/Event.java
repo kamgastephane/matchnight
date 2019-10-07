@@ -14,9 +14,9 @@ import java.util.Objects;
 
 public abstract class Event {
 
-    private static final String EXTERNAL_ID = "externalId";
+    public static final String EXTERNAL_ID = "externalId";
     public static final String DATE = "date";
-    private static final String TYPE = "type";
+    public static final String TYPE = "type";
 
 
     @Id
@@ -47,7 +47,7 @@ public abstract class Event {
         this.version = version;
     }
 
-    enum Type{
+    public enum Type{
         FOOTBALL;
 
         public static Type from(String type) {
