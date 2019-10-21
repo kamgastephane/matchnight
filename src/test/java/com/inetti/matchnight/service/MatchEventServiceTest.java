@@ -1,6 +1,6 @@
 package com.inetti.matchnight.service;
 
-import com.inetti.matchnight.data.dto.MatchEvent;
+import com.inetti.matchnight.data.model.MatchEvent;
 import com.inetti.matchnight.data.repository.MatchEventRepository;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
@@ -47,9 +47,9 @@ public class MatchEventServiceTest {
     @Test
     public void testGetFor() {
         LocalDate localDate = LocalDate.of(2019, 10, 1);
-        when(repository.findByDateCached(eq(localDate))).thenReturn(Collections.emptyList());
-        service.getFor(localDate);
-        verify(repository, times(1)).findByDateCached(any());
+        when(repository.findByMonthCached(eq(2019), eq(10), any())).thenReturn(Collections.emptyList());
+        service.getFor(2019, 10, null);
+        verify(repository, times(1)).findByMonthCached(eq(2019), eq(10), any());
     }
 
     @Test

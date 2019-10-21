@@ -1,8 +1,9 @@
 package com.inetti.matchnight.service;
 
 import com.inetti.matchnight.data.OffsetLimitRequest;
-import com.inetti.matchnight.data.dto.SupportRequest;
+import com.inetti.matchnight.data.model.SupportRequest;
 import com.inetti.matchnight.data.repository.RequestRepository;
+import com.inetti.matchnight.data.request.UpdateSupportRequest;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,7 +68,8 @@ public class SupportRequestServiceTest {
         SupportRequest request = SupportRequest.of(PROJECT_ID, SOURCE, LOCATION, RESPONSE_TIME, DURATION, EVENT_ID);
         ArgumentCaptor<Update> captor = ArgumentCaptor.forClass(Update.class);
         when(repository.updateRequest(eq(Collections.singletonList(id)), captor.capture())).thenReturn(true);
-        supportRequestService.updateRequest(id.toString(), LOCATION, RESPONSE_TIME, DURATION, SOURCE, EVENT_ID);
+        UpdateSupportRequest updateSupportRequest = new UpdateSupportRequest(LOCATION, DURATION, RESPONSE_TIME, SOURCE, EVENT_ID, null);
+        supportRequestService.updateRequest(id.toString(), updateSupportRequest);
 
         verify(repository, times(1)).updateRequest(any(), any());
         Update value = captor.getValue();
@@ -141,6 +143,7 @@ public class SupportRequestServiceTest {
         supportRequestService.archiveRequestByProjectId(id.toString());
         verify(repository, times(1)).archiveByProjectId(eq(id.toString()));
     }
+
 
     @Test
     public void getRequestList() {

@@ -4,7 +4,7 @@ buildscript {
 }
 
 plugins {
-	id 'org.springframework.boot' version '2.1.7.RELEASE'
+	id 'org.springframework.boot' version '2.1.9.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 	id 'java'
 }
@@ -12,7 +12,7 @@ plugins {
 
 
 group = 'com.inetti'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 sourceCompatibility = '1.8'
 
 repositories {
@@ -27,11 +27,20 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.passay:passay:1.4.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	testCompile 'junit:junit:4.12'
+	testCompile 'nl.jqno.equalsverifier:equalsverifier:3.1.10'
 
 	compile 'org.jetbrains:annotations:16.0.2'
 	compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+
+	compile 'io.jsonwebtoken:jjwt-api:0.10.7'
+	runtime 'io.jsonwebtoken:jjwt-impl:0.10.7',
+			'io.jsonwebtoken:jjwt-jackson:0.10.7'
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.1.9.RELEASE'
+	testCompile group: 'org.springframework.security', name: 'spring-security-test', version: '4.0.0.RELEASE'
+
 
 }

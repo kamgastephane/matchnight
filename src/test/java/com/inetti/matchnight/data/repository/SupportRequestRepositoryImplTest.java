@@ -2,7 +2,7 @@ package com.inetti.matchnight.data.repository;
 
 import com.inetti.matchnight.MockMVCTest;
 import com.inetti.matchnight.data.OffsetLimitRequest;
-import com.inetti.matchnight.data.dto.SupportRequest;
+import com.inetti.matchnight.data.model.SupportRequest;
 import org.bson.types.ObjectId;
 import org.junit.After;
 import org.junit.Assert;
@@ -41,11 +41,14 @@ public class SupportRequestRepositoryImplTest extends MockMVCTest {
     @Before
     public void setUp() {
         repository.deleteAll();
+        template.getConnectionFactory().getConnection().flushAll();
     }
 
     @After
     public void tearDown() {
         repository.deleteAll();
+        template.getConnectionFactory().getConnection().flushAll();
+
     }
 
     @Test
@@ -161,7 +164,7 @@ public class SupportRequestRepositoryImplTest extends MockMVCTest {
 
         cached = repository.findByIdCached(new ObjectId(save.getId()));
         Assert.assertTrue(cached.isPresent());
-        Assert.assertEquals(RESPONSE_TIME, cached.get().getResponseTime());
+        Assert.assertEquals(SupportRequest.ResponseTime.IMMEDIATE, cached.get().getResponseTime());
     }
 
     @Test
@@ -247,6 +250,6 @@ public class SupportRequestRepositoryImplTest extends MockMVCTest {
 
     }
     private String getCacheKey(String id) {
-        return RequestRepository.REQUEST_CACHE_NAME + "::" + id;
+        return RepositoryConstants.REQUEST_CACHE_NAME + "::" + id;
     }
 }

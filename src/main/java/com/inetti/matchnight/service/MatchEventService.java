@@ -1,20 +1,18 @@
 package com.inetti.matchnight.service;
 
-import com.inetti.matchnight.data.dto.Event;
-import com.inetti.matchnight.data.dto.MatchEvent;
+import com.inetti.matchnight.data.model.Event;
+import com.inetti.matchnight.data.model.MatchEvent;
 import com.inetti.matchnight.data.repository.MatchEventRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -32,11 +30,13 @@ public class MatchEventService {
 
 
     /**
-     * @param date a date
-     * @return the list of all match events at that date
+     * @param year the year requested
+     * @param month the month requested
+     * @param pageable the pagination parameter requested
+     * @return the list of all match events during that month for that year
      */
-    public List<MatchEvent> getFor(LocalDate date) {
-        return repository.findByDateCached(date);
+    public List<MatchEvent> getFor(Integer year, Integer month, Pageable pageable) {
+        return repository.findByMonthCached(year, month, pageable);
     }
 
 
@@ -60,14 +60,6 @@ public class MatchEventService {
 
             repository.update(updateMap);
         });
-
-        //clear the cache for all dates corresponding to those matchevents
-        List<LocalDate> dates = eventList.stream().map(MatchEvent::getDate)
-                .filter(Objects::nonNull)
-                .map(instant -> instant.atZone(ZoneId.of("UTC")).toLocalDate())
-                .collect(Collectors.toList());
-        dates.forEach(repository::purgeByDate);
-
     }
 
     public void deleteEvents(List<String> externalIds) {

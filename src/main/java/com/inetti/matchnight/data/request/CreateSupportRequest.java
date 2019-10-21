@@ -2,7 +2,7 @@ package com.inetti.matchnight.data.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.inetti.matchnight.data.dto.SupportRequest;
+import com.inetti.matchnight.data.model.SupportRequest;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
@@ -18,7 +18,7 @@ public class CreateSupportRequest extends UpdateSupportRequest{
     @JsonCreator
     public CreateSupportRequest(@NotNull String projectId, @NotNull SupportRequest.Location location, @NotNull SupportRequest.Duration duration,
                                 @NotNull SupportRequest.ResponseTime responseTime, String source, String eventId) {
-        super(location, duration, responseTime, source, eventId);
+        super(location, duration, responseTime, source, eventId, null);
         this.projectId = projectId;
     }
 

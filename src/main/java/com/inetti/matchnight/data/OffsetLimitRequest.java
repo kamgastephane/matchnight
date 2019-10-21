@@ -9,6 +9,7 @@ import java.util.Optional;
 public class OffsetLimitRequest implements Pageable {
 
     private static final Integer LIMIT_DEFAULT = 20;
+    private static final Integer LIMIT_MAX = 200;
 
     private final Long offset;
     private final Integer limit;
@@ -17,7 +18,7 @@ public class OffsetLimitRequest implements Pageable {
     private OffsetLimitRequest(Long offset, Integer limit, Sort sort) {
 
         this.offset = Optional.ofNullable(offset).orElse(0L);
-        this.limit = Optional.ofNullable(limit).orElse(LIMIT_DEFAULT);
+        this.limit = Math.min(Optional.ofNullable(limit).orElse(LIMIT_DEFAULT), LIMIT_MAX);
         this.sort = sort;
 
     }

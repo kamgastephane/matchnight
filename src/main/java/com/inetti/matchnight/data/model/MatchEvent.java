@@ -1,4 +1,4 @@
-package com.inetti.matchnight.data.dto;
+package com.inetti.matchnight.data.model;
 
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -25,11 +25,21 @@ public class MatchEvent  extends Event {
         return new MatchEvent(matchId, date, Type.FOOTBALL, null, null);
     }
 
+    /**
+     * method needed by the mongo driver
+     * @param id the id of the event
+     * @return a new instance with the fields copied
+     */
     @Override
     public MatchEvent withId(String id) {
         return new MatchEvent(this.externalId, this.date, this.type, id, this.version);
     }
 
+    /**
+     * method needed by the mongo driver
+     * @param version the version of the event
+     * @return a new instance with the fields copied
+     */
     @Override
     public MatchEvent withVersion(Long version) {
         return new MatchEvent(this.externalId, this.date, this.type, this.id, version);

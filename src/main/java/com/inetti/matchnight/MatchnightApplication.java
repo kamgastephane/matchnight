@@ -7,10 +7,10 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoCo
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class, MongoRepositoriesAutoConfiguration.class, RedisAutoConfiguration.class,
-		RedisRepositoriesAutoConfiguration.class})
+		RedisRepositoriesAutoConfiguration.class, SecurityAutoConfiguration.class})
 public class MatchnightApplication {
 
 	public static void main(String[] args) {

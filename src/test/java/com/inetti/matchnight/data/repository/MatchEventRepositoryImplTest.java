@@ -1,18 +1,19 @@
 package com.inetti.matchnight.data.repository;
 
 import com.inetti.matchnight.MockMVCTest;
-import com.inetti.matchnight.data.dto.Event;
-import com.inetti.matchnight.data.dto.MatchEvent;
+import com.inetti.matchnight.data.OffsetLimitRequest;
+import com.inetti.matchnight.data.model.Event;
+import com.inetti.matchnight.data.model.MatchEvent;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -22,6 +23,8 @@ import java.util.List;
 public class MatchEventRepositoryImplTest extends MockMVCTest {
 
     private static final String MATCH_ID = "matchid";
+    private static final Integer YEAR = 2019;
+    private static final Integer MONTH = 10;
     @Autowired
     private MatchEventRepository repository;
 
@@ -34,8 +37,8 @@ public class MatchEventRepositoryImplTest extends MockMVCTest {
     @Before
     public void setUp() {
         repository.deleteAll();
-
-        date = ZonedDateTime.of(2019, 10, 1,20, 45, 0,0, ZoneId.of("UTC")).toInstant();
+        template.getConnectionFactory().getConnection().flushAll();
+        date = ZonedDateTime.of(YEAR, MONTH, 1,20, 45, 0,0, ZoneId.of("UTC")).toInstant();
         event = MatchEvent.of(MATCH_ID, date);
     }
 
@@ -61,37 +64,40 @@ public class MatchEventRepositoryImplTest extends MockMVCTest {
     @Test
     public void testReadFromCache() {
         MatchEvent save = repository.save(event);
-        List<MatchEvent> byDateCached = repository.findByDateCached(LocalDate.of(2019, 10, 1));
+
+        List<MatchEvent> byDateCached = repository.findByMonthCached(YEAR, MONTH, OffsetLimitRequest.of(Sort.by("date")));
         Assert.assertEquals(1, byDateCached.size());
 
         Assert.assertEquals(MATCH_ID, save.getExternalId());
         Assert.assertEquals(date, save.getDate());
         Assert.assertNotNull(save.getId());
         Assert.assertNotNull(save.getVersion());
+
+        List<MatchEvent> notFound = repository.findByMonthCached(YEAR, 9, OffsetLimitRequest.of(Sort.by("date")));
+        Assert.assertEquals(0, notFound.size());
+
     }
 
     @Test
     public void testCachekey() {
         repository.save(event);
-        Assert.assertEquals(false, template.hasKey("match_event_cache::2019-10-01"));
-        repository.findByDateCached(LocalDate.of(2019, 10, 1));
+        Assert.assertEquals(false, template.hasKey("match_event_cache::2019-10"));
+        repository.findByMonthCached(YEAR, MONTH, OffsetLimitRequest.of(Sort.by("date")));
 
-        Assert.assertEquals(true, template.hasKey("match_event_cache::2019-10-01"));
+        Assert.assertEquals(true, template.hasKey("match_event_cache::2019-10"));
     }
 
     @Test
     public void testCachePurge() {
-        final LocalDate date = LocalDate.of(2019, 10, 1);
         repository.save(event);
-        repository.findByDateCached(date);
-        Assert.assertEquals(true, template.hasKey("match_event_cache::2019-10-01"));
-        repository.purgeByDate(date);
-        Assert.assertEquals(false, template.hasKey("match_event_cache::2019-10-01"));
+        repository.findByMonthCached(YEAR, MONTH, OffsetLimitRequest.of(Sort.by("date")));
+        Assert.assertEquals(true, template.hasKey("match_event_cache::2019-10"));
+        repository.purge(YEAR, MONTH);
+        Assert.assertEquals(false, template.hasKey("match_event_cache::2019-10"));
     }
 
     @Test
     public void testUpdate() {
-        final LocalDate queryDate = LocalDate.of(2019, 10, 1);
 
         final Update update = new Update();
         update.set(Event.EXTERNAL_ID, MATCH_ID);
@@ -99,18 +105,22 @@ public class MatchEventRepositoryImplTest extends MockMVCTest {
         update.set(Event.DATE, date);
 
         repository.update(Collections.singletonMap(MATCH_ID, update));
-        List<MatchEvent> results = repository.findByDateCached(queryDate);
+        List<MatchEvent> results = repository.findByMonthCached(YEAR, MONTH, OffsetLimitRequest.of(Sort.by("date")));
         Assert.assertNotNull(results);
         Assert.assertEquals(1, results.size());
         Assert.assertEquals(date, results.get(0).getDate());
 
-        //we update the day by 1
-        final Instant oneDayLater = date.plus(1, ChronoUnit.DAYS);
+        //we add 32 day to go to the next month
+        final Instant oneMonthLater = date.plus(32, ChronoUnit.DAYS);
         final Update dateUpdate = new Update();
-        dateUpdate.set(Event.DATE, oneDayLater);
+        dateUpdate.set(Event.DATE, oneMonthLater);
         repository.update(Collections.singletonMap(MATCH_ID, dateUpdate));
-        //as the cache key is the date we query using the new date (old date plus one day) to avoid the cache
-        results = repository.findByDateCached(queryDate.plus(1, ChronoUnit.DAYS));
+
+        results = repository.findByMonthCached(YEAR, MONTH, OffsetLimitRequest.of(Sort.by("date")));
+        Assert.assertNotNull(results);
+        Assert.assertEquals(0, results.size());
+
+        results = repository.findByMonthCached(YEAR, 11, OffsetLimitRequest.of(Sort.by("date")));
         Assert.assertNotNull(results);
         Assert.assertEquals(1, results.size());
 
@@ -118,11 +128,9 @@ public class MatchEventRepositoryImplTest extends MockMVCTest {
 
     @Test
     public void testDelete() {
-        final LocalDate queryDate = LocalDate.of(2019, 10, 1);
-
         repository.save(event);
         repository.delete(Collections.singletonList(MATCH_ID));
-        List<MatchEvent> results = repository.findByDateCached(queryDate);
+        List<MatchEvent> results = repository.findByMonthCached(YEAR, MONTH, OffsetLimitRequest.of(Sort.by("date")));
         Assert.assertTrue(results.isEmpty());
 
     }

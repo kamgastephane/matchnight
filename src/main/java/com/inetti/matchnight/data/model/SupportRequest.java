@@ -1,18 +1,21 @@
-package com.inetti.matchnight.data.dto;
+package com.inetti.matchnight.data.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +36,7 @@ public class SupportRequest {
     public static final String DURATION = "duration";
     public static final String EVENT_ID = "eventId";
     public static final String ARCHIVED = "archived";
+    public static final String INETTO_ID = "inetti";
 
     private static final HashMap<String, Duration> DURATION_MAP = new HashMap<>(4);
     private static final HashMap<Integer, Location> LOCATION_MAP = new HashMap<>(2);
@@ -66,15 +70,27 @@ public class SupportRequest {
     @Field(EVENT_ID)
     private final String eventId;
 
+    @Field(INETTO_ID)
+    private final Collection<String> inetti;
+
     @Version
     private final Long version;
 
     @Field(ARCHIVED)
     private final Boolean archived;
 
-
-    private SupportRequest(ObjectId id, String projectId, String requestSource, Location where, ResponseTime responseTime,
-                           Duration duration, Long version, String eventId, Boolean archived) {
+    @PersistenceConstructor
+    @JsonCreator
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public SupportRequest(@JsonProperty("id") ObjectId id, @JsonProperty("projectId") String projectId,
+                          @JsonProperty("requestSource") String requestSource,
+                          @JsonProperty("where") Location where,
+                          @JsonProperty("responseTime") ResponseTime responseTime,
+                          @JsonProperty("duration") Duration duration,
+                          @JsonProperty("eventId") String eventId,
+                          @JsonProperty("inetti") Collection<String> inetti,
+                          @JsonProperty("version") Long version,
+                          @JsonProperty("archived")Boolean archived) {
 
         this.id = id;
         this.projectId = projectId;
@@ -82,25 +98,25 @@ public class SupportRequest {
         this.where = where;
         this.responseTime = responseTime;
         this.duration = duration;
-        this.version = version;
         this.eventId = eventId;
+        this.version = version;
+        this.inetti = inetti;
         this.archived = archived;
     }
 
-    @JsonCreator
-    public static SupportRequest of(@JsonProperty("projectId") String projectId,
-                                    @JsonProperty("requestSource") String requestSource,
-                                    @JsonProperty("where") Location location,
-                                    @JsonProperty("responseTime") ResponseTime responseTime,
-                                    @JsonProperty("duration") Duration duration,
-                                    @JsonProperty("eventId") String eventId) {
+    public static SupportRequest of(String projectId,
+                                    String requestSource,
+                                    Location location,
+                                    ResponseTime responseTime,
+                                    Duration duration,
+                                    String eventId) {
 
         Objects.requireNonNull(projectId, "projectId cannot be null while creating a request");
         Objects.requireNonNull(location, "location cannot be null while creating a request");
         Objects.requireNonNull(responseTime, "responseTime cannot be null while creating a request");
         Objects.requireNonNull(duration, "duration cannot be null while creating a request");
 
-        return new SupportRequest(null, projectId, requestSource, location, responseTime, duration, null, eventId, false);
+        return new SupportRequest(null, projectId, requestSource, location, responseTime, duration, eventId, null, null, false);
     }
 
     /**
@@ -110,7 +126,7 @@ public class SupportRequest {
      */
     public SupportRequest withId(ObjectId id) {
         return new SupportRequest(id, this.projectId, this.requestSource, this.where, this.responseTime,
-                this.duration, this.version, this.eventId, this.archived);
+                this.duration, this.eventId, null, this.version, this.archived);
     }
 
     /**
@@ -120,7 +136,7 @@ public class SupportRequest {
      */
     public SupportRequest withVersion(Long version) {
         return new SupportRequest(this.id, this.projectId, this.requestSource, this.where, this.responseTime,
-                this.duration, version, this.eventId, this.archived);
+                this.duration, this.eventId, null, version,  this.archived);
     }
 
     public String getId() {
@@ -159,6 +175,10 @@ public class SupportRequest {
         return archived;
     }
 
+    public Collection<String> getInetti() {
+        return inetti;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -170,24 +190,28 @@ public class SupportRequest {
                 where == request.where &&
                 responseTime == request.responseTime &&
                 duration == request.duration &&
+                Objects.equals(eventId, request.eventId) &&
+                Objects.equals(inetti, request.inetti) &&
                 Objects.equals(version, request.version) &&
                 Objects.equals(archived, request.archived);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, projectId, requestSource, where, responseTime, duration, version, archived);
+        return Objects.hash(id, projectId, requestSource, where, responseTime, duration, eventId, inetti, version, archived);
     }
 
     @Override
     public String toString() {
-        return "Request{" +
+        return "SupportRequest{" +
                 "id=" + id +
                 ", projectId='" + projectId + '\'' +
                 ", requestSource='" + requestSource + '\'' +
                 ", where=" + where +
                 ", responseTime=" + responseTime +
                 ", duration=" + duration +
+                ", eventId='" + eventId + '\'' +
+                ", inetti=" + inetti +
                 ", version=" + version +
                 ", archived=" + archived +
                 '}';
@@ -251,6 +275,7 @@ public class SupportRequest {
             return code;
         }
     }
+
 
     /**
      * Those are the standard duration code currently supported by Inetti

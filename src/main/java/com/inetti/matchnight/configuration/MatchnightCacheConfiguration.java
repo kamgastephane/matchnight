@@ -1,7 +1,6 @@
 package com.inetti.matchnight.configuration;
 
-import com.inetti.matchnight.data.repository.MatchEventRepository;
-import com.inetti.matchnight.data.repository.RequestRepository;
+import com.inetti.matchnight.data.repository.RepositoryConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,18 +42,21 @@ public class MatchnightCacheConfiguration extends CachingConfigurerSupport {
                                         @Value("${redis.port}") String port,
                                         @Value("${redis.cache.ttl.default}") String defaultTTL,
                                         @Value("${redis.cache.ttl.request}") String requestCacheTTL,
-                                        @Value("${redis.cache.ttl.matchevent}") String matcheventCacheTTL) {
+                                        @Value("${redis.cache.ttl.matchevent}") String matcheventCacheTTL,
+                                        @Value("${redis.cache.tt.inetto}") String inettoCacheTTL) {
 
         this.host = Objects.requireNonNull(host);
         this.port = Integer.parseInt(port);
         this.defaultTTL = Optional.ofNullable(defaultTTL).map(Integer::parseInt).orElse(DEFAULT_TTL);
         cacheNameTimeOut = new HashMap<>();
 
-        //fill cache
-        Optional.ofNullable(requestCacheTTL).ifPresent(v -> cacheNameTimeOut.put(RequestRepository.REQUEST_CACHE_NAME,
+        //fill cache ttl
+        Optional.ofNullable(requestCacheTTL).ifPresent(v -> cacheNameTimeOut.put(RepositoryConstants.REQUEST_CACHE_NAME,
                 Long.parseLong(requestCacheTTL)));
-        Optional.ofNullable(matcheventCacheTTL).ifPresent(v -> cacheNameTimeOut.put(MatchEventRepository.MATCH_EVENT_CACHE_NAME,
+        Optional.ofNullable(matcheventCacheTTL).ifPresent(v -> cacheNameTimeOut.put(RepositoryConstants.MATCH_EVENT_CACHE_NAME,
                 Long.parseLong(matcheventCacheTTL)));
+        Optional.ofNullable(inettoCacheTTL).ifPresent(v -> cacheNameTimeOut.put(RepositoryConstants.INETTO_CACHE_NAME,
+                Long.parseLong(inettoCacheTTL)));
 
     }
 
@@ -86,6 +88,8 @@ public class MatchnightCacheConfiguration extends CachingConfigurerSupport {
         template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
         return template;
     }
+
+
 
 
 

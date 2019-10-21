@@ -1,7 +1,9 @@
 package com.inetti.matchnight.service;
 
-import com.inetti.matchnight.data.dto.SupportRequest;
+import com.inetti.matchnight.data.model.Event;
+import com.inetti.matchnight.data.model.SupportRequest;
 import com.inetti.matchnight.data.repository.RequestRepository;
+import com.inetti.matchnight.data.request.UpdateSupportRequest;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -28,7 +30,6 @@ public class SupportRequestService {
 
     @Autowired
     public SupportRequestService(RequestRepository requestRepository) {
-
         this.requestRepository = requestRepository;
     }
 
@@ -63,38 +64,41 @@ public class SupportRequestService {
      * @param eventId the eventId duration or null
      * @return true if the update was successful false otherwise
      */
-    public boolean updateRequest(@NotNull String requestId, SupportRequest.Location location,
-                                 SupportRequest.ResponseTime responseTime,
-                                 SupportRequest.Duration duration, String source, String eventId ) {
+    public boolean updateRequest(@NotNull String requestId, UpdateSupportRequest request ) {
         Objects.requireNonNull(requestId);
 
-        if (Stream.of(location, responseTime, duration, source, eventId).anyMatch(Objects::nonNull)){
+        if (Stream.of(request.getLocation(), request.getResponseTime(), request.getDuration(), request.getSource(),
+                request.getEventId(), request.getInetti()).anyMatch(Objects::nonNull)){
             Update update = new Update();
             ObjectId objectId = new ObjectId(requestId);
-            if (location != null) update.set(SupportRequest.LOCATION, location);
-            if (responseTime != null) update.set(SupportRequest.RESPONSE_TIME, responseTime);
-            if (duration != null) update.set(SupportRequest.DURATION, duration);
-            if (source != null) update.set(SupportRequest.REQUEST_SOURCE, source);
-            if (eventId != null) update.set(SupportRequest.EVENT_ID, eventId);
+            build(update, SupportRequest.LOCATION, request.getLocation());
+            build(update, SupportRequest.RESPONSE_TIME, request.getResponseTime());
+            build(update, SupportRequest.DURATION, request.getDuration());
+            build(update, SupportRequest.REQUEST_SOURCE, request.getSource());
+            build(update, SupportRequest.EVENT_ID, request.getEventId());
+            build(update, SupportRequest.INETTO_ID, request.getInetti());
 
             boolean success = requestRepository.updateRequest(Collections.singletonList(objectId), update);
             if (success) {
                 requestRepository.purgeById(objectId);
-                LOGGER.debug("support request updated: id {}, location: {} responseTime: {}, duration: {}",
-                        requestId, location, responseTime, duration);
+                LOGGER.debug("support request updated: value: {}", request);
             }
 
         }
         return false;
     }
 
+    private void build(Update update, String fieldName, Object value) {
+        if (value != null) update.set(fieldName, value);
+    }
+
     /** Create a support request
      * @param projectId the projectId
-     * @param location the {@link com.inetti.matchnight.data.dto.SupportRequest.Location}
-     * @param responseTime the {@link com.inetti.matchnight.data.dto.SupportRequest.ResponseTime}
-     * @param duration the {@link com.inetti.matchnight.data.dto.SupportRequest.Duration}
+     * @param location the {@link SupportRequest.Location}
+     * @param responseTime the {@link SupportRequest.ResponseTime}
+     * @param duration the {@link SupportRequest.Duration}
      * @param source the source of the support request
-     * @param eventId the Id of the corresponding {@link com.inetti.matchnight.data.dto.Event}
+     * @param eventId the Id of the corresponding {@link Event}
      * @return the created resource
      */
     public SupportRequest createSupportRequest(@NotNull String projectId,

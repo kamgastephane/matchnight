@@ -1,4 +1,4 @@
-package com.inetti.matchnight.data.dto;
+package com.inetti.matchnight.data.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
@@ -20,7 +20,7 @@ public abstract class Event {
 
 
     @Id
-    protected String id;
+    protected final String id;
 
     @Field(EXTERNAL_ID)
     @Indexed

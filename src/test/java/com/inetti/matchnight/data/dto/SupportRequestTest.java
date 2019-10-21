@@ -1,5 +1,6 @@
 package com.inetti.matchnight.data.dto;
 
+import com.inetti.matchnight.data.model.SupportRequest;
 import org.junit.Assert;
 import org.junit.Test;
 

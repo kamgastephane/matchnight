@@ -3,12 +3,14 @@ package com.inetti.matchnight.controller;
 
 import com.inetti.matchnight.controller.validators.SupportRequestValidator;
 import com.inetti.matchnight.data.OffsetLimitRequest;
-import com.inetti.matchnight.data.dto.SupportRequest;
+import com.inetti.matchnight.data.model.SupportRequest;
 import com.inetti.matchnight.data.request.CreateSupportRequest;
 import com.inetti.matchnight.data.request.UpdateSupportRequest;
 import com.inetti.matchnight.data.response.BaseResponse;
 import com.inetti.matchnight.data.response.CreateSupportResponse;
 import com.inetti.matchnight.service.SupportRequestService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,17 +27,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.inetti.matchnight.data.response.BaseResponse.*;
+import static com.inetti.matchnight.data.response.BaseResponse.success;
+import static com.inetti.matchnight.data.response.BaseResponse.with;
 
 @RestController
 @RequestMapping({"/v1/requests"})
 public class SupportRequestController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SupportRequestController.class);
 
     private final SupportRequestService supportRequestService;
     private final SupportRequestValidator requestValidator;
@@ -74,11 +80,10 @@ public class SupportRequestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseResponse> updateSupportRequest(@PathVariable(value = "id") String id,
+    public ResponseEntity<BaseResponse> updateSupportRequest(@NotNull  @PathVariable(value = "id") String id,
                                                                @Valid @RequestBody UpdateSupportRequest request) {
         requestValidator.validate(id);
-        supportRequestService.updateRequest(id, request.getLocation(), request.getResponseTime(),
-                request.getDuration(), request.getSource(), request.getEventId());
+        supportRequestService.updateRequest(id, request);
         return new ResponseEntity<>(success(), HttpStatus.OK);
     }
 

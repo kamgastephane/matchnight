@@ -1,12 +1,15 @@
 package com.inetti.matchnight.controller;
 
 import com.inetti.matchnight.MockMVCTest;
-import com.inetti.matchnight.data.dto.SupportRequest;
+import com.inetti.matchnight.data.model.SupportRequest;
 import com.inetti.matchnight.data.repository.RequestRepository;
 import org.bson.types.ObjectId;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -37,6 +40,7 @@ public class SupportRequestControllerTest extends MockMVCTest {
     private static final SupportRequest.ResponseTime RESPONSE_TIME = SupportRequest.ResponseTime.BUSINESS_HOURS;
     private static final SupportRequest.Duration DURATION = SupportRequest.Duration.H4;
     private static final String CREATE_REQUEST = "{\"projectId\":\"PROJECTID\",\"location\":1,\"duration\":\"h4\",\"responseTime\":1,\"eventId\":null,\"requestSource\":\"SOURCE\"}";
+    private static final String ASSIGN_REQUEST = "{\"projectId\":\"PROJECTID\",\"location\":1,\"duration\":\"h4\",\"responseTime\":1,\"eventId\":null,\"requestSource\":\"SOURCE\",\"inetti\":[1,2,3]}";
 
     @MockBean
     private RequestRepository requestRepository;
@@ -113,6 +117,18 @@ public class SupportRequestControllerTest extends MockMVCTest {
                     .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
             verify(requestRepository, times(1)).updateRequest(any(), any());
 
+        }
+
+        @Test
+        public void assignSupportRequest() throws Exception {
+            ArgumentCaptor<Update> captor = ArgumentCaptor.forClass(Update.class);
+            when(requestRepository.updateRequest(any(), captor.capture())).thenReturn(true);
+            this.mockMvc.perform(put("/v1/requests/{0}", ObjectId.get().toString())
+                    .content(ASSIGN_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+            verify(requestRepository, times(1)).updateRequest(any(), any());
+            Assert.assertTrue(captor.getValue().modifies("inetti"));
         }
 
 

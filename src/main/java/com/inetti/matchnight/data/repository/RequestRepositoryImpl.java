@@ -1,13 +1,12 @@
 package com.inetti.matchnight.data.repository;
 
-import com.inetti.matchnight.data.dto.SupportRequest;
+import com.inetti.matchnight.data.model.SupportRequest;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -40,18 +39,17 @@ public class RequestRepositoryImpl implements RequestRepositoryCustom {
         Objects.requireNonNull(update);
 
         UpdateResult result = template.updateMulti(query(where("_id").in(ids)), update, SupportRequest.class);
+        LOGGER.debug("purge requests: objectId: {}", ids);
 
-         return result.getModifiedCount()>0;
+        return result.getModifiedCount()>0;
       }
 
     @Override
-    @CacheEvict(value = RequestRepository.REQUEST_CACHE_NAME, key = RequestRepository.CACHE_KEY_ID)
     public void purgeById(@NotNull ObjectId id) {
         LOGGER.debug("purge request: objectId: {}", id);
     }
 
     @Override
-    @CacheEvict(value = RequestRepository.REQUEST_CACHE_NAME, allEntries = true)
     public boolean archiveByProjectId(@NotNull String projectId) {
 
         Update update = new Update();
@@ -64,8 +62,8 @@ public class RequestRepositoryImpl implements RequestRepositoryCustom {
     }
 
     @Override
-    public List<SupportRequest> findByProjectId(@NotNull String id, @NotNull Pageable pageable) {
-        Query query = Query.query (Criteria.where(SupportRequest.PROJECT_ID).is(id))
+    public List<SupportRequest> findByProjectId(@NotNull String projectId, @NotNull Pageable pageable) {
+        Query query = Query.query (Criteria.where(SupportRequest.PROJECT_ID).is(projectId))
                 .addCriteria(Criteria.where(SupportRequest.ARCHIVED).is(false))
                 .with(pageable);
         return template.find(query, SupportRequest.class);
