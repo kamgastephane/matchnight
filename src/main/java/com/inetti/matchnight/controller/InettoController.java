@@ -4,6 +4,7 @@ import com.inetti.matchnight.data.model.Inetto;
 import com.inetti.matchnight.data.request.CreateInettoRequest;
 import com.inetti.matchnight.data.response.BaseResponse;
 import com.inetti.matchnight.service.InettoService;
+import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.Set;
 
+/**
+ * controller to access users repository
+ */
 @RestController
 @RequestMapping({"/v1/user"})
+@Api(tags = "inetto")
 public class InettoController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InettoController.class);
@@ -34,6 +39,7 @@ public class InettoController {
 
     @PostMapping
     public void create(@Valid @RequestBody CreateInettoRequest request) {
+        //todo get the exception thrown when we have duplicate and catch itproperlyh
         Inetto inetto = new Inetto.InettoBuilder()
                 .withUsername(request.getUsername())
                 .withRole(request.getRole())
@@ -49,8 +55,4 @@ public class InettoController {
         final Set<Inetto> result = inettoService.search(query);
         return ResponseEntity.ok(BaseResponse.with(result));
     }
-
-
-
-
 }

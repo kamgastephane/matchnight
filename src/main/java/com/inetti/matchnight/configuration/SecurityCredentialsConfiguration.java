@@ -50,6 +50,11 @@ public class SecurityCredentialsConfiguration extends WebSecurityConfigurerAdapt
                 .authorizeRequests()
                 // allow all who are accessing "auth" service
                 .antMatchers(HttpMethod.POST, AuthenticationController.LOGIN_URL).permitAll()
+                .antMatchers(HttpMethod.GET,"/v2/api-docs", "/configuration/ui",
+                        "/swagger-resources/**",
+                        "/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**").permitAll()
                 // Any other request must be authenticated
                 .anyRequest().authenticated();
     }
