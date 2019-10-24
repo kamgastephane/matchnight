@@ -40,4 +40,12 @@ public interface InettoRepositoryCustom {
      */
     @CacheEvict(value = RepositoryConstants.INETTO_CACHE_NAME, allEntries = true)
     public Inetto saveAndInvalidate(Inetto inetto);
+
+
+    /**
+     * The number of inetti i have in the collection
+     * @return a {@link Long} number
+     */
+    @Cacheable(value = RepositoryConstants.INETTO_CACHE_NAME, key = "count")
+    public Long getInettiCount();
 }

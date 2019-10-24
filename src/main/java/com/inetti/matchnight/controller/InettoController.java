@@ -39,7 +39,6 @@ public class InettoController {
 
     @PostMapping
     public void create(@Valid @RequestBody CreateInettoRequest request) {
-        //todo get the exception thrown when we have duplicate and catch itproperlyh
         Inetto inetto = new Inetto.InettoBuilder()
                 .withUsername(request.getUsername())
                 .withRole(request.getRole())
@@ -47,6 +46,7 @@ public class InettoController {
                 .build();
         inettoService.createInetto(inetto);
         LOGGER.debug("user created with data {}", request);
+        //TODO add controllerAdvice for exception
     }
 
     @GetMapping

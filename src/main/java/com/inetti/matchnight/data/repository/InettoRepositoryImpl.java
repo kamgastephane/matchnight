@@ -48,4 +48,9 @@ public class InettoRepositoryImpl implements InettoRepositoryCustom {
         return result;
 
     }
+
+    @Override
+    public Long getInettiCount() {
+        return mongoTemplate.count(new Query(), Inetto.class);
+    }
 }

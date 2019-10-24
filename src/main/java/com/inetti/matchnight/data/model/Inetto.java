@@ -40,7 +40,7 @@ public class Inetto implements InettoContract {
     @Id
     private final ObjectId id;
 
-    @Indexed
+    @Indexed(unique = true)
     @Field(USERNAME)
     private final String username;
 

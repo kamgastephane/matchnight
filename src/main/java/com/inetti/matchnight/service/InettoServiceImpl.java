@@ -1,21 +1,23 @@
 package com.inetti.matchnight.service;
 
-import com.inetti.matchnight.data.OffsetLimitRequest;
 import com.inetti.matchnight.data.model.Inetto;
 import com.inetti.matchnight.data.repository.InettoRepository;
+import com.mongodb.DuplicateKeyException;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -52,7 +54,7 @@ public class InettoServiceImpl implements InettoService<Inetto> {
     }
 
 
-    public void createInetto(@NotNull Inetto inetto) {
+    public void createInetto(@NotNull Inetto inetto) throws DuplicateKeyException {
         Objects.requireNonNull(inetto);
         String password = inetto.getPassword();
         if (password == null) {
@@ -68,18 +70,16 @@ public class InettoServiceImpl implements InettoService<Inetto> {
         //we start searching with pages of 1000 elements
         //we know the user base will hardly be as large as 1000 and all further request will go through the cache layer
         //this could be improved using caffeine in memory cache
-        boolean found = false;
-        int jump = 0;
-        Set<Inetto> inetti = Collections.emptySet();
-        while (!found) {
-            final List<Inetto> inettiCached = inettoRepository.findInettiCached(OffsetLimitRequest.of((long) jump, 1000 + jump, Sort.unsorted()));
-            inetti = inettiCached.parallelStream().filter(inetto -> inetto.getUsername().contains(query)).collect(Collectors.toSet());
-            if (inetti.isEmpty()) {
-                found = true;
+        long count = inettoRepository.getInettiCount();
+        Set<Inetto> inetti = new HashSet<>();
+        int current = 0;
+        Pageable request = PageRequest.of(0, 1000, Sort.unsorted());
+        while (current < count) {
+            final List<Inetto> inettiCached = inettoRepository.findInettiCached(request);
+            current += inettiCached.size();
+            inetti.addAll(inettiCached.parallelStream().filter(inetto -> inetto.getUsername().contains(query)).collect(Collectors.toSet()));
+            request = PageRequest.of(current, 1000, Sort.unsorted());
 
-            } else {
-                jump += 1000;
-            }
         }
         return inetti;
 

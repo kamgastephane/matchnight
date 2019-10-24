@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Update;
@@ -89,8 +90,17 @@ public class InettoRepositoryImplTest extends MockMVCTest {
 
     @Test
     public void testFindAll() {
+        final Inetto inetto2 = new Inetto.InettoBuilder()
+                .withFirstName(FIRST_NAME)
+                .withLastName(LAST_NAME)
+                .withUsername(USERNAME+2)
+                .withPassword(PASSWORD)
+                .withRole(ROLE)
+                .withContacts("email", EMAIL)
+                .build();
         repository.save(inetto);
-        repository.save(inetto);
+        repository.save(inetto2);
+
         final Pageable pageable = OffsetLimitRequest.of(0L, 10, Sort.by(Sort.Direction.DESC, "username"));
         List<Inetto> inettiCached = repository.findInettiCached(pageable);
         Assert.assertEquals(2, inettiCached.size());
@@ -112,7 +122,18 @@ public class InettoRepositoryImplTest extends MockMVCTest {
     }
 
 
+    @Test
+    public void testDuplicate() {
+        final Inetto save = repository.save(inetto);
+        try {
+            final Inetto duplicate = repository.save(inetto);
+            Assert.fail();
+        }catch (Exception e) {
+            Assert.assertEquals(DuplicateKeyException.class, e.getClass());
+        }
 
+
+    }
 
 
 
