@@ -1,5 +1,6 @@
 package com.inetti.matchnight.service;
 
+import com.inetti.matchnight.controller.exception.UserAlreadyExistException;
 import com.inetti.matchnight.data.dto.MatchnightRole;
 import com.inetti.matchnight.data.model.Inetto;
 import com.inetti.matchnight.data.repository.InettoRepository;
@@ -9,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.passay.PasswordGenerator;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -100,6 +102,13 @@ public class InettoServiceImplTest {
         Set<Inetto> result = service.search("user");
         verify(repository, times(1)).findInettiCached(any(Pageable.class));
         Assert.assertEquals(1, result.size());
+    }
+
+    @Test(expected = UserAlreadyExistException.class)
+    public void testDuplicate() {
+        when(passwordEncoder.encode(any())).thenReturn(USERNAME);
+        when(repository.saveAndInvalidate(any())).thenThrow(new DuplicateKeyException(""));
+        service.createInetto(inetto);
     }
 
 

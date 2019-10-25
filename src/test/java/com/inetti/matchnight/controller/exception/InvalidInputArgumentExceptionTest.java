@@ -1,4 +1,4 @@
-package com.inetti.matchnight.configuration.exception;
+package com.inetti.matchnight.controller.exception;
 
 public class InvalidInputArgumentExceptionTest {
     //todo

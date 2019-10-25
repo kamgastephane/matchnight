@@ -1,6 +1,6 @@
 package com.inetti.matchnight.controller.validators;
 
-import com.inetti.matchnight.configuration.exception.InvalidInputArgumentException;
+import com.inetti.matchnight.controller.exception.InvalidInputArgumentException;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

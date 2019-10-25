@@ -1,14 +1,15 @@
 package com.inetti.matchnight.service;
 
+import com.inetti.matchnight.controller.exception.UserAlreadyExistException;
 import com.inetti.matchnight.data.model.Inetto;
 import com.inetti.matchnight.data.repository.InettoRepository;
-import com.mongodb.DuplicateKeyException;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -54,15 +55,18 @@ public class InettoServiceImpl implements InettoService<Inetto> {
     }
 
 
-    public void createInetto(@NotNull Inetto inetto) throws DuplicateKeyException {
+    public void createInetto(@NotNull Inetto inetto) throws UserAlreadyExistException {
         Objects.requireNonNull(inetto);
         String password = inetto.getPassword();
         if (password == null) {
             password = passwordGenerator.generatePassword(8, new CharacterRule(EnglishCharacterData.LowerCase, 4),
                      new CharacterRule(EnglishCharacterData.Digit, 4));
         }
-        inettoRepository.saveAndInvalidate(inetto.withPassword(passwordEncoder.encode(password)));
-
+        try {
+            inettoRepository.saveAndInvalidate(inetto.withPassword(passwordEncoder.encode(password)));
+        } catch (DuplicateKeyException ex) {
+            throw new UserAlreadyExistException(inetto.getUsername());
+        }
     }
 
     @Override

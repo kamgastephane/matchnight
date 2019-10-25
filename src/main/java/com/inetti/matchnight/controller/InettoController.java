@@ -46,7 +46,6 @@ public class InettoController {
                 .build();
         inettoService.createInetto(inetto);
         LOGGER.debug("user created with data {}", request);
-        //TODO add controllerAdvice for exception
     }
 
     @GetMapping

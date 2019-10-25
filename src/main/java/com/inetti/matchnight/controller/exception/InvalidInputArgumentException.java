@@ -1,4 +1,4 @@
-package com.inetti.matchnight.configuration.exception;
+package com.inetti.matchnight.controller.exception;
 
 /**
  * Custom exception class used when invalid argument are passed to controllers
