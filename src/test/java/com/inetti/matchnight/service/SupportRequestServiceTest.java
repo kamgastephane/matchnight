@@ -102,8 +102,8 @@ public class SupportRequestServiceTest {
         Assert.assertEquals(DURATION, captor.getValue().getDuration());
 
         Assert.assertEquals(supportRequest,request);
-
     }
+
 
     @Test(expected = NullPointerException.class)
     public void createInvalidProjectId() {

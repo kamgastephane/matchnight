@@ -6,7 +6,7 @@ import com.inetti.matchnight.data.model.SupportRequest;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Validated
@@ -27,15 +27,18 @@ public class UpdateSupportRequest {
     @JsonProperty(SupportRequest.EVENT_ID)
     protected final String eventId;
 
+    /**
+     * a map where the key represents the id of an inetto and the value is the role for this support request. eg. key: 12345, role: supervisor
+     */
     @JsonProperty(SupportRequest.INETTO_ID)
-    protected final List<String> inetti;
+    protected final Map<String, String> inetti;
 
     @JsonProperty(SupportRequest.REQUEST_SOURCE)
     protected final String source;
 
     @JsonCreator
     public UpdateSupportRequest(@NotNull SupportRequest.Location location, @NotNull SupportRequest.Duration duration,
-                                @NotNull SupportRequest.ResponseTime responseTime, String source, String eventId, List<String> inetti) {
+                                @NotNull SupportRequest.ResponseTime responseTime, String source, String eventId, Map<String, String> inetti) {
         this.location = location;
         this.duration = duration;
         this.responseTime = responseTime;
@@ -64,7 +67,7 @@ public class UpdateSupportRequest {
         return source;
     }
 
-    public List<String> getInetti() {
+    public Map<String, String> getInetti() {
         return inetti;
     }
 

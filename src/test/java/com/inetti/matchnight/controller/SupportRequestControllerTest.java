@@ -40,7 +40,7 @@ public class SupportRequestControllerTest extends MockMVCTest {
     private static final SupportRequest.ResponseTime RESPONSE_TIME = SupportRequest.ResponseTime.BUSINESS_HOURS;
     private static final SupportRequest.Duration DURATION = SupportRequest.Duration.H4;
     private static final String CREATE_REQUEST = "{\"projectId\":\"PROJECTID\",\"location\":1,\"duration\":\"h4\",\"responseTime\":1,\"eventId\":null,\"requestSource\":\"SOURCE\"}";
-    private static final String ASSIGN_REQUEST = "{\"projectId\":\"PROJECTID\",\"location\":1,\"duration\":\"h4\",\"responseTime\":1,\"eventId\":null,\"requestSource\":\"SOURCE\",\"inetti\":[1,2,3]}";
+    private static final String ASSIGN_REQUEST = "{\"projectId\":\"PROJECTID\",\"location\":1,\"duration\":\"h4\",\"responseTime\":1,\"eventId\":null,\"requestSource\":\"SOURCE\",\"inetti\":{\"1\":\"supervisor\",\"2\":\"graphics\",\"3\":\"digital\"}}";
 
     @MockBean
     private RequestRepository requestRepository;

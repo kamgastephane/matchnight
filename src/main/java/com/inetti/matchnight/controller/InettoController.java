@@ -39,6 +39,7 @@ public class InettoController {
 
     @PostMapping
     public void create(@Valid @RequestBody CreateInettoRequest request) {
+        //todo test only admin should be able to create user
         Inetto inetto = new Inetto.InettoBuilder()
                 .withUsername(request.getUsername())
                 .withRole(request.getRole())
@@ -49,7 +50,6 @@ public class InettoController {
     }
 
     @GetMapping
-    //todo test with min at 2
     public ResponseEntity<BaseResponse<Set<Inetto>>> search(@Min (3) @RequestParam("query") String query) {
         final Set<Inetto> result = inettoService.search(query);
         return ResponseEntity.ok(BaseResponse.with(result));

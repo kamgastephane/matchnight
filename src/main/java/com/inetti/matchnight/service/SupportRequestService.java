@@ -57,11 +57,7 @@ public class SupportRequestService {
     /**
      * Update the support request with id {@code requestId}
      * @param requestId the id of the support request
-     * @param location the updated location or null
-     * @param responseTime the update response time or null
-     * @param duration the update duration or null
-     * @param source the update source or null
-     * @param eventId the eventId duration or null
+     * @param request the request
      * @return true if the update was successful false otherwise
      */
     public boolean updateRequest(@NotNull String requestId, UpdateSupportRequest request ) {

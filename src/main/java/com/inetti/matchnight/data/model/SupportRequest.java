@@ -15,8 +15,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -71,7 +71,7 @@ public class SupportRequest {
     private final String eventId;
 
     @Field(INETTO_ID)
-    private final Collection<String> inetti;
+    private final Map<String, String> inetti;
 
     @Version
     private final Long version;
@@ -88,7 +88,7 @@ public class SupportRequest {
                           @JsonProperty("responseTime") ResponseTime responseTime,
                           @JsonProperty("duration") Duration duration,
                           @JsonProperty("eventId") String eventId,
-                          @JsonProperty("inetti") Collection<String> inetti,
+                          @JsonProperty("inetti") Map<String, String> inetti,
                           @JsonProperty("version") Long version,
                           @JsonProperty("archived")Boolean archived) {
 
@@ -175,7 +175,7 @@ public class SupportRequest {
         return archived;
     }
 
-    public Collection<String> getInetti() {
+    public Map<String, String> getInetti() {
         return inetti;
     }
 
