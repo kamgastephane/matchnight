@@ -50,7 +50,7 @@ public class InettoRepositoryImpl implements InettoRepositoryCustom {
     }
 
     @Override
-    public Long getInettiCount() {
+    public Number getInettiCount() {
         return mongoTemplate.count(new Query(), Inetto.class);
     }
 }

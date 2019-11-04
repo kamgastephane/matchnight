@@ -74,11 +74,11 @@ public class InettoServiceImpl implements InettoService<Inetto> {
         //we start searching with pages of 1000 elements
         //we know the user base will hardly be as large as 1000 and all further request will go through the cache layer
         //this could be improved using caffeine in memory cache
-        long count = inettoRepository.getInettiCount();
+        Number count = inettoRepository.getInettiCount();
         Set<Inetto> inetti = new HashSet<>();
         int current = 0;
         Pageable request = PageRequest.of(0, 1000, Sort.unsorted());
-        while (current < count) {
+        while (current < count.longValue()) {
             final List<Inetto> inettiCached = inettoRepository.findInettiCached(request);
             current += inettiCached.size();
             inetti.addAll(inettiCached.parallelStream().filter(inetto -> inetto.getUsername().contains(query)).collect(Collectors.toSet()));

@@ -1,6 +1,8 @@
 package com.inetti.matchnight.configuration;
 
 import com.inetti.matchnight.controller.AuthenticationController;
+import com.inetti.matchnight.controller.InettoController;
+import com.inetti.matchnight.data.dto.MatchnightRole;
 import com.inetti.matchnight.filter.JWTAuthorizationFilter;
 import com.inetti.matchnight.filter.JWTAuthenticationFilter;
 import com.inetti.matchnight.service.InettoServiceImpl;
@@ -50,12 +52,14 @@ public class SecurityCredentialsConfiguration extends WebSecurityConfigurerAdapt
                 .authorizeRequests()
                 // allow all who are accessing "auth" service
                 .antMatchers(HttpMethod.POST, AuthenticationController.LOGIN_URL).permitAll()
+                // allow all who are accessing swagger
                 .antMatchers(HttpMethod.GET,"/v2/api-docs", "/configuration/ui",
                         "/swagger-resources/**",
                         "/configuration/security",
                         "/swagger-ui.html",
                         "/webjars/**").permitAll()
-                // Any other request must be authenticated
+                // restrict the user controller to inetti with role ADMIN
+                .antMatchers(InettoController.INETTO_CRTL_URL).hasRole(MatchnightRole.ADMIN.toString())
                 .anyRequest().authenticated();
     }
 

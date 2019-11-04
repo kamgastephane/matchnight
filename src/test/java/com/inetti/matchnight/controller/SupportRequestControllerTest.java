@@ -93,43 +93,42 @@ public class SupportRequestControllerTest extends MockMVCTest {
     }
 
 
+    @Test
+    public void createSupportRequest() throws Exception {
+        SupportRequest request = mock(SupportRequest.class);
+        when(request.getId()).thenReturn(ObjectId.get().toString());
 
-        @Test
-        public void createSupportRequest() throws Exception {
-            SupportRequest request = mock(SupportRequest.class);
-            when(request.getId()).thenReturn(ObjectId.get().toString());
+        when(requestRepository.save(any())).thenReturn(request);
 
-            when(requestRepository.save(any())).thenReturn(request);
+        this.mockMvc.perform(post("/v1/requests/")
+                .content(CREATE_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("data.content.id", not(isEmptyOrNullString())));
+    }
 
-            this.mockMvc.perform(post("/v1/requests/")
-                    .content(CREATE_REQUEST)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isCreated())
-                    .andExpect(MockMvcResultMatchers.jsonPath("data.content.id", not(isEmptyOrNullString())));
-        }
+    @Test
+    public void testUpdateSupportRequest() throws Exception {
+        when(requestRepository.updateRequest(any(), any())).thenReturn(true);
+        this.mockMvc.perform(put("/v1/requests/{0}", ObjectId.get().toString())
+                .content(CREATE_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+        verify(requestRepository, times(1)).updateRequest(any(), any());
 
-        @Test
-        public void testUpdateSupportRequest() throws Exception {
-            when(requestRepository.updateRequest(any(), any())).thenReturn(true);
-            this.mockMvc.perform(put("/v1/requests/{0}", ObjectId.get().toString())
-                    .content(CREATE_REQUEST)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
-            verify(requestRepository, times(1)).updateRequest(any(), any());
+    }
 
-        }
-
-        @Test
-        public void assignSupportRequest() throws Exception {
-            ArgumentCaptor<Update> captor = ArgumentCaptor.forClass(Update.class);
-            when(requestRepository.updateRequest(any(), captor.capture())).thenReturn(true);
-            this.mockMvc.perform(put("/v1/requests/{0}", ObjectId.get().toString())
-                    .content(ASSIGN_REQUEST)
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
-            verify(requestRepository, times(1)).updateRequest(any(), any());
-            Assert.assertTrue(captor.getValue().modifies("inetti"));
-        }
+    @Test
+    public void assignSupportRequest() throws Exception {
+        ArgumentCaptor<Update> captor = ArgumentCaptor.forClass(Update.class);
+        when(requestRepository.updateRequest(any(), captor.capture())).thenReturn(true);
+        this.mockMvc.perform(put("/v1/requests/{0}", ObjectId.get().toString())
+                .content(ASSIGN_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+        verify(requestRepository, times(1)).updateRequest(any(), any());
+        Assert.assertTrue(captor.getValue().modifies("inetti"));
+    }
 
 
 }

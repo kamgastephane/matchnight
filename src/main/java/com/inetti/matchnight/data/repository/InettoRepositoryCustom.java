@@ -46,6 +46,6 @@ public interface InettoRepositoryCustom {
      * The number of inetti i have in the collection
      * @return a {@link Long} number
      */
-    @Cacheable(value = RepositoryConstants.INETTO_CACHE_NAME, key = "count")
-    public Long getInettiCount();
+    @Cacheable(value = RepositoryConstants.INETTO_CACHE_NAME, key = "#root.methodName")
+    public Number getInettiCount();
 }
